@@ -11,9 +11,6 @@ class Polytope:
         #print(self.vertices)
         #print(self.faces)
 
-    def reset(self, faces):
-        self.__init__(faces)
-
     def __str__(self):
         facet_string = ""
         for face in self.faces:
@@ -47,9 +44,6 @@ class Cube(Polytope):
             [[0,0,0], [0,1,0], [0,0,1]], [[0,0,1], [0,1,0], [0,1,1]], # 0yz
             [[1,0,0], [1,1,0], [1,0,1]], [[1,0,1], [1,1,0], [1,1,1]], # 0yz
         ]
-        #self.reset(faces)
-        #super.__init__(super, faces, "Cube")
-        #super(Cube, self).__init__(faces)
         Polytope.__init__(self, faces)
 
 class Sponge(Polytope):
