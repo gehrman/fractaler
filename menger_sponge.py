@@ -66,15 +66,6 @@ class Sponge(Polytope):
         for vector in Sponge.mid_vectors:
             Sponge(stage - 1).translate([vector[0], vector[1], 1])
 
-class STLWriter:
-    def print_polytopes(polytopes, name):
-        polytope_string = ""
-        for polytope in polytopes:
-            polytope_string += polytope.__str__()
-        return "solid {}\n\n".format(name) + polytope_string\
-                   + "endsolid {}\n".format(name)
-    
-
 def stage_1():
     cubes = []
 if __name__ == '__main__':

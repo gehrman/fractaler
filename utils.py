@@ -1,5 +1,14 @@
-def read_stl(filename):
-    with open(filename) as f:
+class STLWriter:
+    def print_polytopes(polytopes, name):
+        polytope_string = ""
+        for polytope in polytopes:
+            polytope_string += polytope.__str__()
+        return "solid {}\n\n".format(name) + polytope_string\
+                   + "endsolid {}\n".format(name)
+    
 
-def stl_to_binary(stuff):
-    pass        
+def test_encoding:
+    cubes = []
+
+if __name__ == '__main__':
+    test_encoding()
