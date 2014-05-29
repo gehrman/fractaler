@@ -34,6 +34,15 @@ class Polytope:
     def scale(self, scalar):
         pass
 
+    def join(self, polytope):
+        '''Given a polytope, glue together along matching faces. Since matching
+           faces are necessarily internal, we remove these faces from the
+           resultant polytope.
+        '''
+        self.faces.sort()
+        polytope.faces.sort()
+        new_faces = []
+
 class Cube(Polytope):
     def __init__(self):
         faces = [ # 6 face. This is dumb, and should be done programmatically.
