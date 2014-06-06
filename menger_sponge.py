@@ -74,14 +74,26 @@ class Sponge(Polytope):
     mid_vectors = [(-1,-1), (1,-1), (1,1), (-1,1)]
 
     def __init__(self, stage):
-        self.sub_topes = []
+        if stage > 1:
+            # We need 20 n-sponges to make an (n+1)-sponge.
+            pre_topes = [Sponge(stage - 1) for i in range(20)]
+        else:
+            # Unless we're making a 1-sponge. Then we need 20 cubes.
+            pre_topes = [Cube() for i in range(20)]
+        sub_topes = []
+        # FIX ME: All this shifting should really be a single list comprehension/map.
         for vector in Sponge.top_bot_vectors:
             for i in [-1, 1]:
-                if stage == 0:
-                    self.sub_topes.append(
-                Sponge(stage - 1).translate([vector[0], vector[1], i]))
+                sub_topes += pre_topes.pop().translate([vector[0], vector[1], i])
         for vector in Sponge.mid_vectors:
-            Sponge(stage - 1).translate([vector[0], vector[1], 0])
+            sub_topes += pre_topes.pop().translate([vector[0], vector[1], i])
+
+        # We should also join and shift at the same time. This is also the dumb way to do the joining.
+        tope = Polytope([])
+        while sub_topes != []:
+            tope = Polytope.join(tope, sub_topes.pop())
+
+        Polytope.__init__(self, tope.faces)
 
 def stage_1():
     cubes = []
