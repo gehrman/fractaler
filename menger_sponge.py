@@ -35,26 +35,26 @@ class Polytope:
         pass
 
     @classmethod
-    def join(polytope_a, polytope_b):
+    def join(self, polytope_a, polytope_b):
         '''
         Given a pair of polytopes, glue them together along matching faces. Since matching
         faces are necessarily internal, we remove these faces from the resultant polytope.
         Two faces match if and only if they contain exactly the same vertices, i.e., if
         set(face_1) = set(face_2).
+
+        FIX ME: prevent joining from creating problems with the right-hand rule.
+        FIX ME: why does this need self when it's decorated as a classmethod?
         '''
-        # Dict comprehension. It's awesome.
-        a_faces = {set(face): face for face in polytope_a.faces}
-        b_faces = {set(face): face for face in polytope_b.faces}
+        a_faces = [set([tuple(vertex) for vertex in face]) for face in polytope_a.faces]
+        b_faces = [set([tuple(vertex) for vertex in face]) for face in polytope_b.faces]
 
-        # Remove shared faces.
-        for face in a_faces:
-            if face in b_faces:
-                b_faces.pop(face)
-        for face in b_faces:
-            if face in a_faces:
-                b_faces.pop(face)
+        # Shared faces to remove.
+        shared_faces = [face for face in a_faces if face in b_faces]
+        for face in shared_faces:
+            a_faces.remove(face)
+            b_faces.remove(face)
 
-        return Polytope(a_face.values() + b_faces.values())
+        return Polytope([list(face) for face in a_faces + b_faces])
 
 
 class Cube(Polytope):
@@ -92,13 +92,15 @@ if __name__ == '__main__':
 #    p = Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang")
 #    p.translate([2,2,2]) 
 #
-#    with open("cube-test-{}.stl".format(i), "w") as f:
+    with open("join-test-{}.stl".format(i), "w") as f:
+        tope = Polytope.join(Cube(), Cube().translate([1,0,0]))
+        f.writelines(STLWriter.print_polytopes(str(tope), "join-test"))
 #        f.writelines(Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang").__str__())
 #        f.writelines(Cube().__str__())
-    topes = []
-    for vector in Sponge.top_bot_vectors:
-        topes.append(Cube().translate([vector[0], vector[1], 0]))
-        topes.append(Cube().translate([vector[0], vector[1], 2]))
-    with open("coordinate_free_translate-{}.stl".format(i), 'w') as f:
-        f.writelines(STLWriter.print_polytopes(topes, "rings_test"))
+#    topes = []
+#    for vector in Sponge.top_bot_vectors:
+#        topes.append(Cube().translate([vector[0], vector[1], 0]))
+#        topes.append(Cube().translate([vector[0], vector[1], 2]))
+#    with open("coordinate_free_translate-{}.stl".format(i), 'w') as f:
+#        f.writelines(STLWriter.print_polytopes(topes, "rings_test"))
 #        f.writelines(s1.__str__())
