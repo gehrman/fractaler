@@ -1,7 +1,8 @@
 import struct
 
 class STLWriter:
-    def print_polytopes(self, polytopes, name):
+    # print_polytopes is a class, not instance method
+    def print_polytopes(polytopes, name):
         polytope_string = ""
         for polytope in polytopes:
             polytope_string += polytope.__str__()
@@ -13,10 +14,10 @@ class STLWriter:
         triangles = []
         with open(filename, 'rb') as file:
             name, triangle_count = struct.unpack("80sI", file.read(struct.calcsize("80sI")))
-            for i in range(len(triangle_count))
+            for i in range(len(triangle_count)):
                 triangles.append([])
 
-def test_encoding:
+def test_encoding():
     cubes = []
 
 if __name__ == '__main__':
