@@ -34,14 +34,28 @@ class Polytope:
     def scale(self, scalar):
         pass
 
-    def join(self, polytope):
-        '''Given a polytope, glue together along matching faces. Since matching
-           faces are necessarily internal, we remove these faces from the
-           resultant polytope.
+    @classmethod
+    def join(polytope_a, polytope_b):
         '''
-        self.faces.sort()
-        polytope.faces.sort()
-        new_faces = []
+        Given a pair of polytopes, glue them together along matching faces. Since matching
+        faces are necessarily internal, we remove these faces from the resultant polytope.
+        Two faces match if and only if they contain exactly the same vertices, i.e., if
+        set(face_1) = set(face_2).
+        '''
+        # Dict comprehension. It's awesome.
+        a_faces = {set(face): face for face in polytope_a.faces}
+        b_faces = {set(face): face for face in polytope_b.faces}
+
+        # Remove shared faces.
+        for face in a_faces:
+            if face in b_faces:
+                b_faces.pop(face)
+        for face in b_faces:
+            if face in a_faces:
+                b_faces.pop(face)
+
+        return Polytope(a_face.values() + b_faces.values())
+
 
 class Cube(Polytope):
     def __init__(self):
@@ -56,30 +70,35 @@ class Cube(Polytope):
         Polytope.__init__(self, faces)
 
 class Sponge(Polytope):
-    top_bot_vectors = [(0,0), (1,0), (2,0), (2,1), (2,2), (1,2), (0,2), (0,1)]
-    mid_vectors = [(0,0), (2,0), (2,2), (0,2)]
+    top_bot_vectors = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0)]
+    mid_vectors = [(-1,-1), (1,-1), (1,1), (-1,1)]
 
     def __init__(self, stage):
         self.sub_topes = []
         for vector in Sponge.top_bot_vectors:
-            for i in [0, 2]:
+            for i in [-1, 1]:
                 if stage == 0:
                     self.sub_topes.append(
-                Sponge(stage - 1).translate([vector[0], vector[1], i])
+                Sponge(stage - 1).translate([vector[0], vector[1], i]))
         for vector in Sponge.mid_vectors:
-            Sponge(stage - 1).translate([vector[0], vector[1], 1])
+            Sponge(stage - 1).translate([vector[0], vector[1], 0])
 
 def stage_1():
     cubes = []
+
 if __name__ == '__main__':
+    from utils import STLWriter
     i = input("file number: ")
 #    p = Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang")
 #    p.translate([2,2,2]) 
 #
 #    with open("cube-test-{}.stl".format(i), "w") as f:
 #        f.writelines(Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang").__str__())
-#        f.writelines(Cube().__str__())    
-    s1 = Sponge(1)
-    with open("menger-test-stage-one-run-{}.stl".format(i), 'w') as f:
-#        f.writelines(print_polytopes(s1, "menger-sponge-1"))
-        f.writelines(s1.__str__())
+#        f.writelines(Cube().__str__())
+    topes = []
+    for vector in Sponge.top_bot_vectors:
+        topes.append(Cube().translate([vector[0], vector[1], 0]))
+        topes.append(Cube().translate([vector[0], vector[1], 2]))
+    with open("coordinate_free_translate-{}.stl".format(i), 'w') as f:
+        f.writelines(STLWriter.print_polytopes(topes, "rings_test"))
+#        f.writelines(s1.__str__())
