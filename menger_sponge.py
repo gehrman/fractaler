@@ -111,9 +111,6 @@ class Sponge(Polytope):
 
         Polytope.__init__(self, tope.faces)
 
-def stage_1():
-    cubes = []
-
 if __name__ == '__main__':
     pass
 #    from utils import STLWriter
