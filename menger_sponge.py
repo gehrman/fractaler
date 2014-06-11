@@ -34,6 +34,11 @@ class Polytope:
     def scale(self, scalar):
         pass
 
+    def __cyclic_permutations(vertex):
+        return [[vertex[0], vertex[1], vertex[2]],
+                [vertex[1], vertex[2], vertex[0]],
+                [vertex[2], vertex[0], vertex[1]]]
+
     @classmethod
     def join(self, polytope_a, polytope_b):
         '''
@@ -45,16 +50,16 @@ class Polytope:
         FIX ME: prevent joining from creating problems with the right-hand rule.
         FIX ME: why does this need self when it's decorated as a classmethod?
         '''
-        a_faces = [set([tuple(vertex) for vertex in face]) for face in polytope_a.faces]
-        b_faces = [set([tuple(vertex) for vertex in face]) for face in polytope_b.faces]
-
-        # Shared faces to remove.
-        shared_faces = [face for face in a_faces if face in b_faces]
+        # Comput the shared faces to remove.
+        a_rotations = []
+        for face in polytope_a.faces:
+            a_rotations += self.__cyclic_permutations(face)
+        shared_faces = [face for face in polytope_b.faces if face in a_rotations]
         for face in shared_faces:
-            a_faces.remove(face)
-            b_faces.remove(face)
+            polytope_a.faces.remove(face)
+            polytope_b.faces.remove(face)
 
-        return Polytope([list(face) for face in a_faces + b_faces])
+        return Polytope([[list(vertex) for vertex in list(face)] for face in polytope_a.faces + polytope_b.faces])
 
 
 class Cube(Polytope):
@@ -73,6 +78,13 @@ class Sponge(Polytope):
     top_bot_vectors = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0)]
     mid_vectors = [(-1,-1), (1,-1), (1,1), (-1,1)]
 
+    all_base_vectors = []
+    for vector in top_bot_vectors:
+        for i in [-1, 1]:
+            all_base_vectors.append([vector[0], vector[1], i])
+    for vector in mid_vectors:
+        all_base_vectors.append([vector[0], vector[1], 0])
+
     def __init__(self, stage):
         if stage > 1:
             # We need 20 n-sponges to make an (n+1)-sponge.
@@ -84,9 +96,13 @@ class Sponge(Polytope):
         # FIX ME: All this shifting should really be a single list comprehension/map.
         for vector in Sponge.top_bot_vectors:
             for i in [-1, 1]:
-                sub_topes += pre_topes.pop().translate([vector[0], vector[1], i])
+                tope = pre_topes.pop()
+                tope.translate([vector[0], vector[1], i])
+                sub_topes.append(tope)
         for vector in Sponge.mid_vectors:
-            sub_topes += pre_topes.pop().translate([vector[0], vector[1], i])
+            tope = pre_topes.pop()
+            tope.translate([vector[0], vector[1], 0])
+            sub_topes.append(tope)
 
         # We should also join and shift at the same time. This is also the dumb way to do the joining.
         tope = Polytope([])
@@ -99,14 +115,15 @@ def stage_1():
     cubes = []
 
 if __name__ == '__main__':
-    from utils import STLWriter
-    i = input("file number: ")
+    pass
+#    from utils import STLWriter
+#    i = input("file number: ")
 #    p = Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang")
 #    p.translate([2,2,2]) 
 #
-    with open("join-test-{}.stl".format(i), "w") as f:
-        tope = Polytope.join(Cube(), Cube().translate([1,0,0]))
-        f.writelines(STLWriter.print_polytopes(str(tope), "join-test"))
+#    with open("join-test-{}.stl".format(i), "w") as f:
+#        tope = Polytope.join(Cube(), Cube().translate([1,0,0]))
+#        f.writelines(STLWriter.print_polytopes(str(tope), "join-test"))
 #        f.writelines(Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang").__str__())
 #        f.writelines(Cube().__str__())
 #    topes = []
