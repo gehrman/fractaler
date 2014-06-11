@@ -110,8 +110,10 @@ class Sponge(Polytope):
 
 if __name__ == '__main__':
 #    pass
-
-    name = "level-one-sponge"
-    msg = ''.join(["solid {0}\n\n", str(Sponge(1)), "endsolid {0}\n"]).format(name)
-    with open(''.join([name, '-', str(input("file number: ")), '.stl']), 'w') as f:
+    numbers = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven')
+    sponge_level = input("Enter level of the sponge to build: ")
+    file_number = str(input("Enter the file number: "))
+    name = "level-{}-sponge".format(numbers[sponge_level])
+    msg = ''.join(["solid {0}\n\n", str(Sponge(sponge_level)), "endsolid {0}\n"]).format(name)
+    with open(''.join([name, '-', file_number, '.stl']), 'w') as f:
         f.writelines(msg)
