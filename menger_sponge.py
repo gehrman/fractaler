@@ -30,7 +30,8 @@ class Polytope:
     def scale(self, scalar):
         pass
 
-    def __cyclic_permutations(vertex):
+    @classmethod
+    def __cyclic_permutations(self, vertex):
         return [[vertex[0], vertex[1], vertex[2]],
                 [vertex[1], vertex[2], vertex[0]],
                 [vertex[2], vertex[0], vertex[1]]]
