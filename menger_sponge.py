@@ -8,8 +8,6 @@ class Polytope:
         self.faces = [
             [self.vertices[self.vertices.index(vertex)]  for vertex in face]
             for face in faces]
-        #print(self.vertices)
-        #print(self.faces)
 
     def __str__(self):
         facet_string = ""
@@ -28,8 +26,6 @@ class Polytope:
         for vertex in self.vertices:
             for i in range(dimension):
                 vertex[i] += vector[i]
-#        print(self.vertices)
-#        print(self.faces)
 
     def scale(self, scalar):
         pass
