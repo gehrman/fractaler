@@ -1,4 +1,10 @@
 class Polytope:
+    '''
+    FIX ME: add a real doc string
+    FIX ME: add a vertex_to_face map so that we can iterate over vertices
+            when joining
+    FIX ME: join in a more efficient manner
+    '''
     def __init__(self, faces):
         self.vertices = []
         for face in faces:
@@ -72,15 +78,25 @@ class Cube(Polytope):
         Polytope.__init__(self, faces)
 
 class Sponge(Polytope):
+    # FIX ME: yet again, there are much better ways of doing is
     top_bot_vectors = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0)]
     mid_vectors = [(-1,-1), (1,-1), (1,1), (-1,1)]
 
-    all_base_vectors = []
+    base_translation_vectors = []
     for vector in top_bot_vectors:
         for i in [-1, 1]:
-            all_base_vectors.append([vector[0], vector[1], i])
+            base_translation_vectors.append([vector[0], vector[1], i])
     for vector in mid_vectors:
-        all_base_vectors.append([vector[0], vector[1], 0])
+        base_translation_vectors.append([vector[0], vector[1], 0])
+
+    translation_vectors_by_stage = [(), base_translation_vectors]
+    while len(translation_vectors_by_stage) < 8:
+        translation_vectors_by_stage.append([[3*v[0], 3*v[1], 3*v[2]] for
+                                              v in translation_vectors_by_stage[-1]])
+
+    del top_bot_vectors
+    del mid_vectors
+
 
     def __init__(self, stage):
         if stage > 1:
@@ -91,15 +107,11 @@ class Sponge(Polytope):
             pre_topes = [Cube() for i in range(20)]
         sub_topes = []
         # FIX ME: All this shifting should really be a single list comprehension/map.
-        for vector in Sponge.top_bot_vectors:
-            for i in [-1, 1]:
+        if stage > 0:
+            for vector in Sponge.translation_vectors_by_stage[stage]:
                 tope = pre_topes.pop()
-                tope.translate([vector[0], vector[1], i])
+                tope.translate(vector)
                 sub_topes.append(tope)
-        for vector in Sponge.mid_vectors:
-            tope = pre_topes.pop()
-            tope.translate([vector[0], vector[1], 0])
-            sub_topes.append(tope)
 
         # We should also join and shift at the same time. This is also the dumb way to do the joining.
         tope = Polytope([])
