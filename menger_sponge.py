@@ -43,7 +43,6 @@ class Polytope:
         Two faces match if and only if they contain exactly the same vertices, i.e., if
         set(face_1) = set(face_2).
 
-        FIX ME: prevent joining from creating problems with the right-hand rule.
         FIX ME: why does this need self when it's decorated as a classmethod?
         '''
         # Comput the shared faces to remove.
@@ -51,6 +50,7 @@ class Polytope:
         for face in polytope_a.faces:
             a_rotations += self.__cyclic_permutations(face)
         shared_faces = [face for face in polytope_b.faces if face in a_rotations]
+
         for face in shared_faces:
             polytope_a.faces.remove(face)
             polytope_b.faces.remove(face)
