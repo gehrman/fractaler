@@ -108,21 +108,9 @@ class Sponge(Polytope):
         Polytope.__init__(self, tope.faces)
 
 if __name__ == '__main__':
-    pass
-#    from utils import STLWriter
-#    i = input("file number: ")
-#    p = Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang")
-#    p.translate([2,2,2]) 
-#
-#    with open("join-test-{}.stl".format(i), "w") as f:
-#        tope = Polytope.join(Cube(), Cube().translate([1,0,0]))
-#        f.writelines(STLWriter.print_polytopes(str(tope), "join-test"))
-#        f.writelines(Polytope([[[0,0,0],[1,0,0],[0,1,0]]], "triang").__str__())
-#        f.writelines(Cube().__str__())
-#    topes = []
-#    for vector in Sponge.top_bot_vectors:
-#        topes.append(Cube().translate([vector[0], vector[1], 0]))
-#        topes.append(Cube().translate([vector[0], vector[1], 2]))
-#    with open("coordinate_free_translate-{}.stl".format(i), 'w') as f:
-#        f.writelines(STLWriter.print_polytopes(topes, "rings_test"))
-#        f.writelines(s1.__str__())
+#    pass
+
+    name = "level-one-sponge"
+    msg = ''.join(["solid {0}\n\n", str(Sponge(1)), "endsolid {0}\n"]).format(name)
+    with open(''.join([name, '-', str(input("file number: ")), '.stl']), 'w') as f:
+        f.writelines(msg)
