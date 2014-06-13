@@ -3,9 +3,17 @@ class Polytope:
     FIX ME: add a real doc string
     FIX ME: add a vertex_to_face map so that we can iterate over vertices
             when joining
-    FIX ME: join in a more efficient manner
+    FIX ME: join in a more efficient manner - add a vertex_to_face map, union
+            faces into a polytope then only check face identity when in same
+            map...?
     '''
     def __init__(self, faces):
+        '''
+        Build a polytope give a list of its faces.
+
+        The polytope stores its vertices directly, and its faces as
+        references to these vertices.
+        '''
         self.vertices = []
         for face in faces:
             for vertex in face:
@@ -16,6 +24,12 @@ class Polytope:
             for face in faces]
 
     def __str__(self):
+        '''
+        Print the faces of the polytope in ascii-stl format.
+
+        THIS WILL ONLY PRINT THE FACES, THE HEADER AND TAIL NEED TO
+        BE ADDED SEPARATELY.
+        '''
         facet_string = ""
         for face in self.faces:
             # Ugly as sin, but it works.
@@ -27,17 +41,33 @@ class Polytope:
         return facet_string
 
     def translate(self, vector):
+        '''
+        Given a vector, translate the polytope by that vector.
+        '''
         # Can this be done coordinate free?
         dimension = len(vector)
         for vertex in self.vertices:
             for i in range(dimension):
                 vertex[i] += vector[i]
 
+    def transform(self, matrix):
+        '''
+        Function stub. Not yet necessary.
+        '''
+        pass
+
     def scale(self, scalar):
+        '''
+        Function stub. Not yet necessary.
+        '''
         pass
 
     @classmethod
     def __cyclic_permutations(self, vertex):
+        '''
+        This is used to check identity of faces when joining polytopes. We
+        explicitly
+        '''
         return [[vertex[0], vertex[1], vertex[2]],
                 [vertex[1], vertex[2], vertex[0]],
                 [vertex[2], vertex[0], vertex[1]]]
@@ -45,10 +75,13 @@ class Polytope:
     @classmethod
     def join(self, polytope_a, polytope_b):
         '''
-        Given a pair of polytopes, glue them together along matching faces. Since matching
-        faces are necessarily internal, we remove these faces from the resultant polytope.
-        Two faces match if and only if they contain exactly the same vertices, i.e., if
-        set(face_1) = set(face_2).
+        Given a pair of polytopes, glue them together along matching faces.
+        Since matching faces are necessarily internal, we remove these faces
+        from the resultant polytope. Two faces match if and only if they
+        contain exactly the same vertices, i.e., if set(face_1) == set(face_2).
+        However, mapping set() across both faces and comparing that way
+        causes problems with the right-hand rule, so we instead check
+        face1 in __cyclic_permuations(face2).
 
         FIX ME: why does this need self when it's decorated as a classmethod?
         '''
@@ -66,7 +99,13 @@ class Polytope:
 
 
 class Cube(Polytope):
+    '''
+    Build a cube. Used as the base voxel for building sponges.
+    '''
     def __init__(self):
+        '''
+        FIX ME: listing each vertex like this is really dumb.
+        '''
         faces = [ # 6 face. This is dumb, and should be done programmatically.
             [[0,0,0], [1,0,0], [0,1,0]], [[0,1,0], [1,0,0], [1,1,0]], # xy0
             [[0,0,1], [1,0,1], [0,1,1]], [[0,1,1], [1,0,1], [1,1,1]], # xy1
@@ -78,6 +117,9 @@ class Cube(Polytope):
         Polytope.__init__(self, faces)
 
 class Sponge(Polytope):
+    '''
+    Build an n-sponge from (n-1)-sponges.
+    '''
     # FIX ME: yet again, there are much better ways of doing is
     top_bot_vectors = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0)]
     mid_vectors = [(-1,-1), (1,-1), (1,1), (-1,1)]
@@ -99,6 +141,11 @@ class Sponge(Polytope):
 
 
     def __init__(self, stage):
+        '''
+        There are more efficient way of doing this, but for now the recursion
+        works well enough. Anyways a better join method is probably more
+        important anyways.
+        '''
         if stage > 1:
             # We need 20 n-sponges to make an (n+1)-sponge.
             pre_topes = [Sponge(stage - 1) for i in range(20)]
@@ -113,7 +160,7 @@ class Sponge(Polytope):
                 tope.translate(vector)
                 sub_topes.append(tope)
 
-        # We should also join and shift at the same time. This is also the dumb way to do the joining.
+        # We should also join and shift at the same time.
         tope = Polytope([])
         while sub_topes != []:
             tope = Polytope.join(tope, sub_topes.pop())
@@ -121,7 +168,6 @@ class Sponge(Polytope):
         Polytope.__init__(self, tope.faces)
 
 if __name__ == '__main__':
-#    pass
     numbers = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven')
     sponge_level = input("Enter level of the sponge to build: ")
     file_number = str(input("Enter the file number: "))
